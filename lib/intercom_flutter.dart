@@ -14,14 +14,14 @@ class Intercom {
       const MethodChannel('maido.io/intercom');
   static const EventChannel _unreadChannel =
       const EventChannel('maido.io/intercom/unread');
-  static MessageHandler _messageHandler;
+  static MessageHandler? _messageHandler;
 
   /// This is useful since end application don't need to store the token by itself.
   /// It will be send through message handler so application can use it in any way it wants.
-  static String _iosDeviceToken;
+  static String? _iosDeviceToken;
 
   static Future<dynamic> initialize(String appId,
-      {String androidApiKey, String iosApiKey, MessageHandler onMessage}) {
+      {String? androidApiKey, String? iosApiKey, MessageHandler? onMessage}) {
     // Backward compatibility, show new feature in debug mode.
     if (onMessage == null && !kReleaseMode) {
       _messageHandler = (data) => print("[INTERCOM_FLUTTER] On message: $data");
@@ -47,7 +47,7 @@ class Intercom {
         String token = call.arguments;
         _iosDeviceToken = token;
         if (_messageHandler != null) {
-          _messageHandler({"method": "iosDeviceToken", "token": token});
+          _messageHandler!({"method": "iosDeviceToken", "token": token});
         }
         return null;
       default:
@@ -59,7 +59,7 @@ class Intercom {
     return _channel.invokeMethod('setUserHash', {'userHash': userHash});
   }
 
-  static Future<dynamic> registerIdentifiedUser({String userId, String email}) {
+  static Future<dynamic> registerIdentifiedUser({String? userId, String? email}) {
     if (userId?.isNotEmpty ?? false) {
       if (email?.isNotEmpty ?? false) {
         throw ArgumentError(
@@ -83,13 +83,13 @@ class Intercom {
   }
 
   static Future<dynamic> updateUser({
-    String email,
-    String name,
-    String phone,
-    String company,
-    String companyId,
-    String userId,
-    Map<String, dynamic> customAttributes,
+    String? email,
+    String? name,
+    String? phone,
+    String? company,
+    String? companyId,
+    String? userId,
+    Map<String, dynamic>? customAttributes,
   }) {
     return _channel.invokeMethod('updateUser', <String, dynamic>{
       'email': email,
@@ -115,7 +115,7 @@ class Intercom {
   }
 
   static Future<int> unreadConversationCount() {
-    return _channel.invokeMethod('unreadConversationCount');
+    return _channel.invokeMethod('unreadConversationCount') as Future<int>;
   }
 
   static Future<dynamic> setInAppMessagesVisibility(
@@ -140,7 +140,7 @@ class Intercom {
   }
 
   static Future<dynamic> logEvent(String name,
-      [Map<String, dynamic> metaData]) {
+      [Map<String, dynamic>? metaData]) {
     return _channel
         .invokeMethod('logEvent', {'name': name, 'metaData': metaData});
   }
@@ -154,7 +154,7 @@ class Intercom {
   /// This is equivalent to use [sendTokenToIntercom] with iOS token as an argument.
   static Future<dynamic> registerIosTokenToIntercom() {
     if (_iosDeviceToken != null) {
-      return Intercom.sendTokenToIntercom(_iosDeviceToken);
+      return Intercom.sendTokenToIntercom(_iosDeviceToken!);
     } else {
       return throw ErrorDescription(
           "No iOS device token was generated. You have called this method before iOS generate device token or your iOS project configuration is not set up properly.");
@@ -183,7 +183,7 @@ class Intercom {
     }
 
     return await _channel
-        .invokeMethod<bool>('isIntercomPush', {'message': message});
+        .invokeMethod<bool>('isIntercomPush', {'message': message}) as Future<bool>;
   }
 
   static Future<void> handlePush(Map<String, dynamic> message) async {
@@ -202,6 +202,6 @@ class Intercom {
   /// settings, find your application and turn notifications by himself.
   /// Return true if permissions are granted.
   static Future<bool> requestIosNotificationPermissions() {
-    return _channel.invokeMethod('requestNotificationPermissions');
+    return _channel.invokeMethod('requestNotificationPermissions') as Future<bool>;
   }
 }
