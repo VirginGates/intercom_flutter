@@ -114,8 +114,8 @@ class Intercom {
     });
   }
 
-  static Future<int> unreadConversationCount() {
-    return _channel.invokeMethod('unreadConversationCount') as Future<int>;
+  static Future<dynamic> unreadConversationCount() {
+    return _channel.invokeMethod('unreadConversationCount');
   }
 
   static Future<dynamic> setInAppMessagesVisibility(
